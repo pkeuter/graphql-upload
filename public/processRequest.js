@@ -4,6 +4,7 @@ const Busboy = require("busboy");
 const { WriteStream } = require("fs-capacitor");
 const createError = require("http-errors");
 const objectPath = require("object-path");
+const quotedPrintable = require("quoted-printable");
 const GRAPHQL_MULTIPART_REQUEST_SPEC_URL = require("../private/GRAPHQL_MULTIPART_REQUEST_SPEC_URL");
 const ignoreStream = require("../private/ignoreStream");
 const Upload = require("./Upload");
@@ -112,7 +113,7 @@ module.exports = function processRequest(
 
     parser.on(
       "field",
-      (fieldName, value, fieldNameTruncated, valueTruncated) => {
+      (fieldName, value, fieldNameTruncated, valueTruncated, encoding) => {
         if (valueTruncated)
           return exit(
             createError(
@@ -121,10 +122,14 @@ module.exports = function processRequest(
             )
           );
 
+        let valueToUse = value;
+        if (encoding === "quoted-printable")
+          valueToUse = quotedPrintable.decode(value);
+
         switch (fieldName) {
           case "operations":
             try {
-              operations = JSON.parse(value);
+              operations = JSON.parse(valueToUse);
             } catch (error) {
               return exit(
                 createError(
@@ -158,7 +163,7 @@ module.exports = function processRequest(
 
             let parsedMap;
             try {
-              parsedMap = JSON.parse(value);
+              parsedMap = JSON.parse(valueToUse);
             } catch (error) {
               return exit(
                 createError(

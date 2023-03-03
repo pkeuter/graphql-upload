@@ -51,7 +51,8 @@
     "busboy": "^0.3.1",
     "fs-capacitor": "^6.2.0",
     "http-errors": "^1.8.1",
-    "object-path": "^0.11.8"
+    "object-path": "^0.11.8",
+    "quoted-printable": "^1.0.1"
   },
   "devDependencies": {
     "coverage-node": "^5.0.1",
